@@ -29,7 +29,8 @@ do
             --query 'Reservations[].Instances[].PrivateIpAddress' \
             --output text
         )
-    f1
+        RECORD_NAME="$instance.$DOMAIN_NAME" #mongodb.soumyadevops.space
+    fi
     echo "IP Address: $IP"
 
     aws route53 change-resource-record-sets \
