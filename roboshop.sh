@@ -2,6 +2,8 @@
 
 SG_ID="sg-0a4e2040f42d9d840"  # replace with your ID
 AMI_ID="ami-0220d79f3f480ecf5"
+ZONE_ID="Z0700693PWL96G8VKYPV"
+DOMAIN_NAME="soumyadevops.space"
 
 for instance in $@
 do
