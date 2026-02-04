@@ -11,6 +11,8 @@ B="\e[34m"
 P="\e[35m"
 C="\e[36m"
 N="\e[0m"
+SCRIPT_DIR=$PWD
+MONGODB_HOST=mongodb.soumyadevops.space
 
 
 if [ $USERID -ne 0 ]; then
@@ -60,7 +62,7 @@ VALIDATE $? "Unzip catalogue code"
 npm install &>>$LOGS_FILE
 VALIDATE $? "Installing dependencies"
 
-cp catalogue.service /etc/systemd/system/catalogue.service
+cp $SCRIPT_DIR/catalogue.service /etc/systemd/system/catalogue.service
 VALIDATE $? "Created systemctl service"
 
 systemctl daemon-reload
@@ -68,11 +70,20 @@ systemctl enable catalogue  &>>$LOGS_FILE
 systemctl start catalogue
 VALIDATE $? "Starting and enabling catalogue"
 
-# dnf install mongodb-mongosh -y
+cp $SCRIPT_DIR/mongo.repo /etc/yum.repos.d/mongo.repo &>>$LOGS_FILE
+dnf install mongodb-mongosh -y
 
-# mongosh --host MONGODB-SERVER-IPADDRESS </app/db/master-data.js
+INDEX=$(mongosh --host $MONGODB_HOST --quiet --eval 'db.getMongo().getDBNames().indexOf("catalogue")')
 
-# mongosh --host MONGODB-SERVER-IPADDRESS
+if [ $INDEX -le 0 ]; then
+    mongosh --host $MONGODB_HOST </app/db/master-data.js
+    VALIDATE $? "Loding products"
+else
+    echo -e "Products already loaded...$Y SKIPPING $N"
+fi
+
+systemctl restart catalogue &>>$LOGS_FILE
+VALIDATE $? "Restarting catalogue"
 
 
 
