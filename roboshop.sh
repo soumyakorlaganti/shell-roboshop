@@ -28,6 +28,5 @@ do
             --output text
         )
     f1
-
-    echo "IP Address: $IP"
+     echo "IP Address: $IP"
 done
