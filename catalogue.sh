@@ -14,7 +14,7 @@ N="\e[0m"
 
 
 if [ $USERID -ne 0 ]; then
-    echo -e "$R please run the script with root user access $N" | tee -a &>> $LOGS_FILE
+    echo -e "$R please run the script with root user access $N" | tee -a &>>$LOGS_FILE
     exit1
 fi
 
@@ -29,35 +29,38 @@ VALIDATE(){
     fi
 }
 
-dnf module disable nodejs -y
+dnf module disable nodejs -y &>>$LOGS_FILE
 VALIDATE $? "Disabling NodeJs Default Version"
 
-dnf module enable nodejs:20 -y
+dnf module enable nodejs:20 -y &>>$LOGS_FILE
 VALIDATE $? "Enabling NodeJs 20"
 
-dnf install nodejs -y
+dnf install nodejs -y &>>$LOGS_FILE
 VALIDATE $? "Installing NodeJs"
 
-useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop
+useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>>$LOGS_FILE
 VALIDATE $? "Creating system user"
 
-mkdir /app 
+mkdir /app  &>>$LOGS_FILE
 VALIDATE $? "Creating app directory"
 
-curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip 
+curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>>$LOGS_FILE
 VALIDATE $? "Downloading catalogue code"
 
-cd /app 
+cd /app &>>$LOGS_FILE
 VALIDATE $? "Moving to app directory"
 
-unzip /tmp/catalogue.zip
+unzip /tmp/catalogue.zip &>>$LOGS_FILE
 VALIDATE $? "Unzip catalogue code"
 
-npm install 
+npm install &>>$LOGS_FILE
 VALIDATE $? "Installing dependencies"
 
+cp catalogue.service /etc/systemd/system/catalogue.service
+VALIDATE $? "Created systemctl service"
+
 systemctl daemon-reload
-systemctl enable catalogue 
+systemctl enable catalogue  &>>$LOGS_FILE
 systemctl start catalogue
 VALIDATE $? "Starting and enabling catalogue"
 
